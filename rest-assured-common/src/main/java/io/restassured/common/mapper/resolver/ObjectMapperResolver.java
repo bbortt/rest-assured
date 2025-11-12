@@ -19,8 +19,10 @@ package io.restassured.common.mapper.resolver;
 import static io.restassured.internal.common.classpath.ClassPathResolver.existInCP;
 
 public class ObjectMapperResolver {
+
     private static final boolean isJackson1Present = existInCP("org.codehaus.jackson.map.ObjectMapper") && existInCP("org.codehaus.jackson.JsonGenerator");
     private static final boolean isJackson2Present = existInCP("com.fasterxml.jackson.databind.ObjectMapper") && existInCP("com.fasterxml.jackson.core.JsonGenerator");
+    private static final boolean isJackson3Present = existInCP("tools.jackson.databind.ObjectMapper") && existInCP("tools.jackson.core.JsonGenerator");
     private static final boolean isJaxbPresent = existInCP("javax.xml.bind.Binder");
     private static final boolean isJakartaEEPresent = existInCP("jakarta.xml.bind.Binder");
     private static final boolean isGsonPresent = existInCP("com.google.gson.Gson");
@@ -35,6 +37,10 @@ public class ObjectMapperResolver {
         return isJackson2Present;
     }
 
+    public static boolean isJackson3InClassPath() {
+        return isJackson3Present;
+    }
+
     public static boolean isJAXBInClassPath() {
         return isJaxbPresent;
     }
@@ -46,11 +52,11 @@ public class ObjectMapperResolver {
     public static boolean isGsonInClassPath() {
         return isGsonPresent;
     }
-    
+
     public static boolean isJohnzonInClassPath() {
         return isJohnzonPresent;
     }
-    
+
     public static boolean isYassonInClassPath() {
         return isYassonPresent;
     }

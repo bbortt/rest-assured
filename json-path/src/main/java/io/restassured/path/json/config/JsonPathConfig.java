@@ -16,7 +16,18 @@
 
 package io.restassured.path.json.config;
 
-import io.restassured.path.json.mapper.factory.*;
+import io.restassured.path.json.mapper.factory.DefaultGsonObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.DefaultJackson1ObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.DefaultJackson2ObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.DefaultJackson3ObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.DefaultJohnzonObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.DefaultYassonObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.GsonObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.Jackson1ObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.Jackson2ObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.Jackson3ObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.JohnzonObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.JsonbObjectMapperFactory;
 import io.restassured.path.json.mapping.JsonPathObjectDeserializer;
 import org.apache.commons.lang3.StringUtils;
 
@@ -39,6 +50,7 @@ public class JsonPathConfig {
     private final GsonObjectMapperFactory gsonObjectMapperFactory;
     private final Jackson1ObjectMapperFactory jackson1ObjectMapperFactory;
     private final Jackson2ObjectMapperFactory jackson2ObjectMapperFactory;
+    private final Jackson3ObjectMapperFactory jackson3ObjectMapperFactory;
     private final JohnzonObjectMapperFactory johnzonObjectMapperFactory;
     private final JsonbObjectMapperFactory jsonbObjectMapperFactory;
     private final String charset;
@@ -50,18 +62,36 @@ public class JsonPathConfig {
      * @param config The config to copy.
      */
     public JsonPathConfig(JsonPathConfig config) {
-        this(config.numberReturnType(), config.defaultParserType(), config.gsonObjectMapperFactory(), config.jackson1ObjectMapperFactory(),
-                config.jackson2ObjectMapperFactory(), config.johnzonObjectMapperFactory(), config.jsonbObjectMapperFactory(),
-                config.defaultDeserializer(), config.charset());
+        this(
+                config.numberReturnType(),
+                config.defaultParserType(),
+                config.gsonObjectMapperFactory(),
+                config.jackson1ObjectMapperFactory(),
+                config.jackson2ObjectMapperFactory(),
+                config.jackson3ObjectMapperFactory(),
+                config.johnzonObjectMapperFactory(),
+                config.jsonbObjectMapperFactory(),
+                config.defaultDeserializer(),
+                config.charset()
+        );
     }
 
     /**
      * Creates a new JsonPathConfig that is configured to return floats and doubles and use the systems default charset for JSON data.
      */
     public JsonPathConfig() {
-        this(FLOAT_AND_DOUBLE, null, new DefaultGsonObjectMapperFactory(), new DefaultJackson1ObjectMapperFactory(),
-                new DefaultJackson2ObjectMapperFactory(), new DefaultJohnzonObjectMapperFactory(), 
-                new DefaultYassonObjectMapperFactory(), null, defaultCharset());
+        this(
+                FLOAT_AND_DOUBLE,
+                null,
+                new DefaultGsonObjectMapperFactory(),
+                new DefaultJackson1ObjectMapperFactory(),
+                new DefaultJackson2ObjectMapperFactory(),
+                new DefaultJackson3ObjectMapperFactory(),
+                new DefaultJohnzonObjectMapperFactory(),
+                new DefaultYassonObjectMapperFactory(),
+                null,
+                defaultCharset()
+        );
     }
 
 
@@ -69,26 +99,50 @@ public class JsonPathConfig {
      * Create a new JsonPathConfig that returns JSON numbers as either Doubles and Floats or BigDecimals
      */
     public JsonPathConfig(NumberReturnType numberReturnType) {
-        this(numberReturnType, null, new DefaultGsonObjectMapperFactory(), new DefaultJackson1ObjectMapperFactory(),
-                new DefaultJackson2ObjectMapperFactory(), new DefaultJohnzonObjectMapperFactory(), 
-                new DefaultYassonObjectMapperFactory(), null, defaultCharset());
-
+        this(
+                numberReturnType,
+                null,
+                new DefaultGsonObjectMapperFactory(),
+                new DefaultJackson1ObjectMapperFactory(),
+                new DefaultJackson2ObjectMapperFactory(),
+                new DefaultJackson3ObjectMapperFactory(),
+                new DefaultJohnzonObjectMapperFactory(),
+                new DefaultYassonObjectMapperFactory(),
+                null,
+                defaultCharset()
+        );
     }
 
     /**
      * Create a new JsonPathConfig that uses the <code>defaultCharset</code> when deserializing JSON data.
      */
     public JsonPathConfig(String defaultCharset) {
-        this(FLOAT_AND_DOUBLE, null, new DefaultGsonObjectMapperFactory(), new DefaultJackson1ObjectMapperFactory(),
-                new DefaultJackson2ObjectMapperFactory(), new DefaultJohnzonObjectMapperFactory(), 
-                new DefaultYassonObjectMapperFactory(), null, defaultCharset);
-
+        this(
+                FLOAT_AND_DOUBLE,
+                null,
+                new DefaultGsonObjectMapperFactory(),
+                new DefaultJackson1ObjectMapperFactory(),
+                new DefaultJackson2ObjectMapperFactory(),
+                new DefaultJackson3ObjectMapperFactory(),
+                new DefaultJohnzonObjectMapperFactory(),
+                new DefaultYassonObjectMapperFactory(),
+                null,
+                defaultCharset
+        );
     }
 
-    private JsonPathConfig(NumberReturnType numberReturnType, JsonParserType parserType, GsonObjectMapperFactory gsonObjectMapperFactory,
-                           Jackson1ObjectMapperFactory jackson1ObjectMapperFactory, Jackson2ObjectMapperFactory jackson2ObjectMapperFactory,
-                           JohnzonObjectMapperFactory johnzonObjectMapperFactory,JsonbObjectMapperFactory jsonbObjectMapperFactory, 
-                           JsonPathObjectDeserializer defaultDeserializer, String charset) {
+    private JsonPathConfig(
+            NumberReturnType numberReturnType,
+            JsonParserType parserType,
+            GsonObjectMapperFactory gsonObjectMapperFactory,
+            Jackson1ObjectMapperFactory jackson1ObjectMapperFactory,
+            Jackson2ObjectMapperFactory jackson2ObjectMapperFactory,
+            Jackson3ObjectMapperFactory jackson3ObjectMapperFactory,
+            JohnzonObjectMapperFactory johnzonObjectMapperFactory,
+            JsonbObjectMapperFactory jsonbObjectMapperFactory,
+            JsonPathObjectDeserializer defaultDeserializer,
+            String charset
+    ) {
         if (numberReturnType == null) throw new IllegalArgumentException("numberReturnType cannot be null");
         charset = StringUtils.trimToNull(charset);
         if (charset == null) throw new IllegalArgumentException("Charset cannot be empty");
@@ -99,6 +153,7 @@ public class JsonPathConfig {
         this.gsonObjectMapperFactory = gsonObjectMapperFactory;
         this.jackson1ObjectMapperFactory = jackson1ObjectMapperFactory;
         this.jackson2ObjectMapperFactory = jackson2ObjectMapperFactory;
+        this.jackson3ObjectMapperFactory = jackson3ObjectMapperFactory;
         this.johnzonObjectMapperFactory = johnzonObjectMapperFactory;
         this.jsonbObjectMapperFactory = jsonbObjectMapperFactory;
     }
@@ -119,8 +174,8 @@ public class JsonPathConfig {
      */
     public JsonPathConfig charset(String charset) {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, 
-                    johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
     }
 
 
@@ -136,8 +191,8 @@ public class JsonPathConfig {
      */
     public JsonPathConfig numberReturnType(NumberReturnType numberReturnType) {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, 
-                    johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
     }
 
     public boolean shouldRepresentJsonNumbersAsBigDecimal() {
@@ -164,10 +219,14 @@ public class JsonPathConfig {
         return jackson2ObjectMapperFactory() != null && jackson2ObjectMapperFactory().getClass() != DefaultJackson2ObjectMapperFactory.class;
     }
 
+    public boolean hasCustomJackson3ObjectMapperFactory() {
+        return jackson3ObjectMapperFactory() != null && jackson3ObjectMapperFactory().getClass() != DefaultJackson3ObjectMapperFactory.class;
+    }
+
     public boolean hasCustomJohnzonObjectMapperFactory() {
         return johnzonObjectMapperFactory() != null && johnzonObjectMapperFactory().getClass() != DefaultJohnzonObjectMapperFactory.class;
     }
-    
+
     public boolean hasCustomJsonbObjectMapperFactory() {
         return jsonbObjectMapperFactory() != null && jsonbObjectMapperFactory().getClass() != DefaultYassonObjectMapperFactory.class;
     }
@@ -179,8 +238,8 @@ public class JsonPathConfig {
      */
     public JsonPathConfig defaultParserType(JsonParserType defaultParserType) {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, 
-                    johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
     }
 
     public JsonPathObjectDeserializer defaultDeserializer() {
@@ -197,8 +256,9 @@ public class JsonPathConfig {
      * @param defaultObjectDeserializer The object de-serializer to use. If <code>null</code> then classpath scanning will be used.
      */
     public JsonPathConfig defaultObjectDeserializer(JsonPathObjectDeserializer defaultObjectDeserializer) {
-        return new JsonPathConfig(numberReturnType, null, gsonObjectMapperFactory, jackson1ObjectMapperFactory,
-                jackson2ObjectMapperFactory, johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultObjectDeserializer, charset);
+        return new JsonPathConfig(numberReturnType, null, gsonObjectMapperFactory,
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultObjectDeserializer, charset);
     }
 
     public GsonObjectMapperFactory gsonObjectMapperFactory() {
@@ -212,8 +272,8 @@ public class JsonPathConfig {
      */
     public JsonPathConfig gsonObjectMapperFactory(GsonObjectMapperFactory gsonObjectMapperFactory) {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, 
-                    johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
     }
 
     public Jackson1ObjectMapperFactory jackson1ObjectMapperFactory() {
@@ -227,29 +287,43 @@ public class JsonPathConfig {
      */
     public JsonPathConfig jackson1ObjectMapperFactory(Jackson1ObjectMapperFactory jackson1ObjectMapperFactory) {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, 
-                    johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
     }
 
     public Jackson2ObjectMapperFactory jackson2ObjectMapperFactory() {
         return jackson2ObjectMapperFactory;
     }
-    
+
+    public Jackson3ObjectMapperFactory jackson3ObjectMapperFactory() {
+        return jackson3ObjectMapperFactory;
+    }
+
     public JohnzonObjectMapperFactory johnzonObjectMapperFactory() {
         return johnzonObjectMapperFactory;
     }
 
     /**
-     * Specify a custom Jackson 1.0 object mapper factory.
+     * Specify a custom Jackson 2.0 object mapper factory.
      *
      * @param jackson2ObjectMapperFactory The object mapper factory
      */
     public JsonPathConfig jackson2ObjectMapperFactory(Jackson2ObjectMapperFactory jackson2ObjectMapperFactory) {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, 
-                    johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
     }
-    
+    /**
+     * Specify a custom Jackson 3.0 object mapper factory.
+     *
+     * @param jackson3ObjectMapperFactory The object mapper factory
+     */
+    public JsonPathConfig jackson3ObjectMapperFactory(Jackson3ObjectMapperFactory jackson3ObjectMapperFactory) {
+        return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
+    }
+
     public JsonbObjectMapperFactory jsonbObjectMapperFactory() {
         return jsonbObjectMapperFactory;
     }
@@ -261,8 +335,8 @@ public class JsonPathConfig {
      */
     public JsonPathConfig jsonbObjectMapperFactory(JsonbObjectMapperFactory jsonbObjectMapperFactory) {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, 
-                    johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
     }
 
     /**

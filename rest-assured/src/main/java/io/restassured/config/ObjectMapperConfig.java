@@ -19,7 +19,18 @@ package io.restassured.config;
 import io.restassured.common.mapper.resolver.ObjectMapperResolver;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperType;
-import io.restassured.path.json.mapper.factory.*;
+import io.restassured.path.json.mapper.factory.DefaultGsonObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.DefaultJackson1ObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.DefaultJackson2ObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.DefaultJackson3ObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.DefaultJohnzonObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.DefaultYassonObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.GsonObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.Jackson1ObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.Jackson2ObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.Jackson3ObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.JohnzonObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.JsonbObjectMapperFactory;
 import io.restassured.path.xml.mapper.factory.DefaultJAXBObjectMapperFactory;
 import io.restassured.path.xml.mapper.factory.DefaultJakartaEEObjectMapperFactory;
 import io.restassured.path.xml.mapper.factory.JAXBObjectMapperFactory;
@@ -36,6 +47,7 @@ public class ObjectMapperConfig implements Config {
     private final GsonObjectMapperFactory gsonObjectMapperFactory;
     private final Jackson1ObjectMapperFactory jackson1ObjectMapperFactory;
     private final Jackson2ObjectMapperFactory jackson2ObjectMapperFactory;
+    private final Jackson3ObjectMapperFactory jackson3ObjectMapperFactory;
     private final JAXBObjectMapperFactory jaxbObjectMapperFactory;
     private final JohnzonObjectMapperFactory johnzonObjectMapperFactory;
     private final JsonbObjectMapperFactory jsonbObjectMapperFactory;
@@ -54,6 +66,7 @@ public class ObjectMapperConfig implements Config {
         gsonObjectMapperFactory = new DefaultGsonObjectMapperFactory();
         jackson1ObjectMapperFactory = new DefaultJackson1ObjectMapperFactory();
         jackson2ObjectMapperFactory = new DefaultJackson2ObjectMapperFactory();
+        jackson3ObjectMapperFactory = new DefaultJackson3ObjectMapperFactory();
         jaxbObjectMapperFactory = newJaxbObjectMapperFactoryOrNullIfNotInClasspath();
         johnzonObjectMapperFactory = new DefaultJohnzonObjectMapperFactory();
         jsonbObjectMapperFactory = new DefaultYassonObjectMapperFactory();
@@ -67,8 +80,9 @@ public class ObjectMapperConfig implements Config {
      * @param defaultObjectMapperType The object mapper to use. If <code>null</code> then classpath scanning will be used.
      */
     public ObjectMapperConfig(ObjectMapperType defaultObjectMapperType) {
-        this(null, defaultObjectMapperType, new DefaultGsonObjectMapperFactory(), new DefaultJackson1ObjectMapperFactory(),
-                new DefaultJackson2ObjectMapperFactory(), newJaxbObjectMapperFactoryOrNullIfNotInClasspath(),
+        this(null, defaultObjectMapperType, new DefaultGsonObjectMapperFactory(),
+                new DefaultJackson1ObjectMapperFactory(), new DefaultJackson2ObjectMapperFactory(), new DefaultJackson3ObjectMapperFactory(),
+                newJaxbObjectMapperFactoryOrNullIfNotInClasspath(),
                 new DefaultJohnzonObjectMapperFactory(), new DefaultYassonObjectMapperFactory(), newJakartaEEObjectMapperFactoryOrNullIfNotInClasspath(),
                 true);
     }
@@ -79,20 +93,30 @@ public class ObjectMapperConfig implements Config {
      * @param defaultObjectMapper The object mapper to use. If <code>null</code> then classpath scanning will be used.
      */
     public ObjectMapperConfig(ObjectMapper defaultObjectMapper) {
-        this(defaultObjectMapper, null, new DefaultGsonObjectMapperFactory(), new DefaultJackson1ObjectMapperFactory(),
-                new DefaultJackson2ObjectMapperFactory(), newJaxbObjectMapperFactoryOrNullIfNotInClasspath(),
+        this(defaultObjectMapper, null, new DefaultGsonObjectMapperFactory(),
+                new DefaultJackson1ObjectMapperFactory(), new DefaultJackson2ObjectMapperFactory(), new DefaultJackson3ObjectMapperFactory(),
+                newJaxbObjectMapperFactoryOrNullIfNotInClasspath(),
                 new DefaultJohnzonObjectMapperFactory(), new DefaultYassonObjectMapperFactory(), newJakartaEEObjectMapperFactoryOrNullIfNotInClasspath(),
                 true);
     }
 
-    private ObjectMapperConfig(ObjectMapper defaultObjectMapper, ObjectMapperType defaultObjectMapperType,
-                               GsonObjectMapperFactory gsonObjectMapperFactory, Jackson1ObjectMapperFactory jackson1ObjectMapperFactory,
-                               Jackson2ObjectMapperFactory jackson2ObjectMapperFactory, JAXBObjectMapperFactory jaxbObjectMapperFactory,
-                               JohnzonObjectMapperFactory johnzonObjectMapperFactory, JsonbObjectMapperFactory jsonbObjectMapperFactory,
-                               JakartaEEObjectMapperFactory jakartaEEObjectMapperFactory, boolean isUserConfigured) {
+    private ObjectMapperConfig(
+            ObjectMapper defaultObjectMapper,
+            ObjectMapperType defaultObjectMapperType,
+            GsonObjectMapperFactory gsonObjectMapperFactory,
+            Jackson1ObjectMapperFactory jackson1ObjectMapperFactory,
+            Jackson2ObjectMapperFactory jackson2ObjectMapperFactory,
+            Jackson3ObjectMapperFactory jackson3ObjectMapperFactory,
+            JAXBObjectMapperFactory jaxbObjectMapperFactory,
+            JohnzonObjectMapperFactory johnzonObjectMapperFactory,
+            JsonbObjectMapperFactory jsonbObjectMapperFactory,
+            JakartaEEObjectMapperFactory jakartaEEObjectMapperFactory,
+            boolean isUserConfigured
+    ) {
         Validate.notNull(gsonObjectMapperFactory, GsonObjectMapperFactory.class.getSimpleName() + " cannot be null");
         Validate.notNull(jackson1ObjectMapperFactory, Jackson1ObjectMapperFactory.class.getSimpleName() + " cannot be null");
         Validate.notNull(jackson2ObjectMapperFactory, Jackson2ObjectMapperFactory.class.getSimpleName() + " cannot be null");
+        Validate.notNull(jackson3ObjectMapperFactory, Jackson3ObjectMapperFactory.class.getSimpleName() + " cannot be null");
         // Note that we explicitly don't check if JakartaEEObjectMapperFactory or JAXBObjectMapperFactory is null here, since
         // they are allowed to be null (they're optional).
         this.defaultObjectMapperType = defaultObjectMapperType;
@@ -100,6 +124,7 @@ public class ObjectMapperConfig implements Config {
         this.gsonObjectMapperFactory = gsonObjectMapperFactory;
         this.jackson1ObjectMapperFactory = jackson1ObjectMapperFactory;
         this.jackson2ObjectMapperFactory = jackson2ObjectMapperFactory;
+        this.jackson3ObjectMapperFactory = jackson3ObjectMapperFactory;
         this.jaxbObjectMapperFactory = jaxbObjectMapperFactory;
         this.johnzonObjectMapperFactory = johnzonObjectMapperFactory;
         this.jsonbObjectMapperFactory = jsonbObjectMapperFactory;
@@ -122,7 +147,8 @@ public class ObjectMapperConfig implements Config {
      */
     public ObjectMapperConfig defaultObjectMapperType(ObjectMapperType defaultObjectMapperType) {
         return new ObjectMapperConfig(defaultObjectMapper, defaultObjectMapperType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jaxbObjectMapperFactory,
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
+                jaxbObjectMapperFactory,
                 johnzonObjectMapperFactory, jsonbObjectMapperFactory, jakartaEEObjectMapperFactory, true);
     }
 
@@ -154,7 +180,8 @@ public class ObjectMapperConfig implements Config {
      */
     public ObjectMapperConfig gsonObjectMapperFactory(GsonObjectMapperFactory gsonObjectMapperFactory) {
         return new ObjectMapperConfig(defaultObjectMapper, defaultObjectMapperType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jaxbObjectMapperFactory,
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
+                jaxbObjectMapperFactory,
                 johnzonObjectMapperFactory, jsonbObjectMapperFactory, jakartaEEObjectMapperFactory, true);
     }
 
@@ -169,7 +196,8 @@ public class ObjectMapperConfig implements Config {
      */
     public ObjectMapperConfig jackson1ObjectMapperFactory(Jackson1ObjectMapperFactory jackson1ObjectMapperFactory) {
         return new ObjectMapperConfig(defaultObjectMapper, defaultObjectMapperType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jaxbObjectMapperFactory,
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
+                jaxbObjectMapperFactory,
                 johnzonObjectMapperFactory, jsonbObjectMapperFactory, jakartaEEObjectMapperFactory, true);
     }
 
@@ -178,13 +206,30 @@ public class ObjectMapperConfig implements Config {
     }
 
     /**
-     * Specify a custom Jackson 1.0 object mapper factory.
+     * Specify a custom Jackson 2.0 object mapper factory.
      *
      * @param jackson2ObjectMapperFactory The object mapper factory
      */
     public ObjectMapperConfig jackson2ObjectMapperFactory(Jackson2ObjectMapperFactory jackson2ObjectMapperFactory) {
         return new ObjectMapperConfig(defaultObjectMapper, defaultObjectMapperType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jaxbObjectMapperFactory,
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
+                jaxbObjectMapperFactory,
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, jakartaEEObjectMapperFactory, true);
+    }
+
+    public Jackson3ObjectMapperFactory jackson3ObjectMapperFactory() {
+        return jackson3ObjectMapperFactory;
+    }
+
+    /**
+     * Specify a custom Jackson 3.0 object mapper factory.
+     *
+     * @param jackson3ObjectMapperFactory The object mapper factory
+     */
+    public ObjectMapperConfig jackson3ObjectMapperFactory(Jackson3ObjectMapperFactory jackson3ObjectMapperFactory) {
+        return new ObjectMapperConfig(defaultObjectMapper, defaultObjectMapperType, gsonObjectMapperFactory,
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
+                jaxbObjectMapperFactory,
                 johnzonObjectMapperFactory, jsonbObjectMapperFactory, jakartaEEObjectMapperFactory, true);
     }
 
@@ -211,7 +256,8 @@ public class ObjectMapperConfig implements Config {
      */
     public ObjectMapperConfig jsonbObjectMapperFactory(JsonbObjectMapperFactory jsonbObjectMapperFactory) {
         return new ObjectMapperConfig(defaultObjectMapper, defaultObjectMapperType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jaxbObjectMapperFactory,
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
+                jaxbObjectMapperFactory,
                 johnzonObjectMapperFactory, jsonbObjectMapperFactory, jakartaEEObjectMapperFactory, true);
     }
 
@@ -222,7 +268,8 @@ public class ObjectMapperConfig implements Config {
      */
     public ObjectMapperConfig jaxbObjectMapperFactory(JAXBObjectMapperFactory jaxbObjectMapperFactory) {
         return new ObjectMapperConfig(defaultObjectMapper, defaultObjectMapperType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jaxbObjectMapperFactory,
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
+                jaxbObjectMapperFactory,
                 johnzonObjectMapperFactory, jsonbObjectMapperFactory, jakartaEEObjectMapperFactory, true);
     }
 
@@ -233,7 +280,8 @@ public class ObjectMapperConfig implements Config {
      */
     public ObjectMapperConfig jakartaEEObjectMapperFactory(JakartaEEObjectMapperFactory jakartaEEObjectMapperFactory) {
         return new ObjectMapperConfig(defaultObjectMapper, defaultObjectMapperType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jaxbObjectMapperFactory,
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
+                jaxbObjectMapperFactory,
                 johnzonObjectMapperFactory, jsonbObjectMapperFactory, jakartaEEObjectMapperFactory, true);
     }
 

@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package io.restassured.path.json.config;
+package io.restassured.path.json.mapper.factory;
+
+
+import tools.jackson.databind.ObjectMapper;
+import io.restassured.common.mapper.factory.ObjectMapperFactory;
 
 /**
- * Specifies different pre-defined JSON parser types
+ * Interface for Jackson 3.0 based object mappers. Implement this class and register it to the ObjectMapperConfig if you
+ * want to override default settings for the Jackson 3.0 object mapper.
  */
-public enum JsonParserType {
-    JACKSON_3, JACKSON_2, JACKSON_1, GSON, JOHNZON, JSONB
+public interface Jackson3ObjectMapperFactory extends ObjectMapperFactory<ObjectMapper> {
 }

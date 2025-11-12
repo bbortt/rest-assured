@@ -33,7 +33,10 @@ import java.util.Collection;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
-import static io.restassured.mapper.ObjectMapperType.*;
+import static io.restassured.mapper.ObjectMapperType.GSON;
+import static io.restassured.mapper.ObjectMapperType.JACKSON_1;
+import static io.restassured.mapper.ObjectMapperType.JACKSON_2;
+import static io.restassured.mapper.ObjectMapperType.JACKSON_3;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -49,7 +52,8 @@ public class TypeObjectMappingITest extends WithJetty {
         return Arrays.asList(new Object[][]{
                 {GSON},
                 {JACKSON_1},
-                {JACKSON_2}
+                {JACKSON_2},
+                {JACKSON_3}
         });
     }
 

@@ -23,12 +23,14 @@ import io.restassured.config.HttpClientConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.internal.mapping.Jackson2Mapper;
+import io.restassured.internal.mapping.Jackson3Mapper;
 import io.restassured.itest.java.objects.Greeting;
 import io.restassured.itest.java.objects.Message;
 import io.restassured.itest.java.support.MyEnum;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.mapper.ObjectMapperType;
 import io.restassured.path.json.mapper.factory.DefaultJackson2ObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.DefaultJackson3ObjectMapperFactory;
 import io.restassured.specification.RequestSpecification;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
@@ -39,7 +41,11 @@ import static io.restassured.RestAssured.config;
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.MultiPartConfig.multiPartConfig;
 import static org.apache.http.entity.mime.HttpMultipartMode.BROWSER_COMPATIBLE;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
 
 public class MultiPartUploadITest extends WithJetty {
 
@@ -214,6 +220,26 @@ public class MultiPartUploadITest extends WithJetty {
     }
 
     @Test
+    public void multiPartSupportsSpecifyingAnObjectMapperTypeToMultiPartSpecBuilder_jackson3() {
+        // Given
+        final Greeting greeting = new Greeting();
+        greeting.setFirstName("John");
+        greeting.setLastName("Doe");
+
+        // When
+        given().
+                multiPart(new MultiPartSpecBuilder(greeting, ObjectMapperType.JACKSON_3)
+                        .fileName("RoleBasedAccessFeaturePlan.csv")
+                        .controlName("text")
+                        .mimeType("application/vnd.ms-excel").build()).
+        when().
+                post("/multipart/text").
+        then().
+                statusCode(200).
+                body(containsString("John"), containsString("Doe"), containsString("{"));
+    }
+
+    @Test
     public void multiPartSupportsSpecifyingAnObjectMapperToMultiPartSpecBuilder() throws Exception {
         // Given
         final Greeting greeting = new Greeting();
@@ -223,6 +249,26 @@ public class MultiPartUploadITest extends WithJetty {
         // When
         given().
                 multiPart(new MultiPartSpecBuilder(greeting, new Jackson2Mapper(new DefaultJackson2ObjectMapperFactory()))
+                        .fileName("RoleBasedAccessFeaturePlan.csv")
+                        .controlName("text")
+                        .mimeType("application/vnd.ms-excel").build()).
+        when().
+                post("/multipart/text").
+        then().
+                statusCode(200).
+                body(containsString("John"), containsString("Doe"), containsString("{"));
+    }
+
+    @Test
+    public void multiPartSupportsSpecifyingAnObjectMapperToMultiPartSpecBuilder_jackson3() {
+        // Given
+        final Greeting greeting = new Greeting();
+        greeting.setFirstName("John");
+        greeting.setLastName("Doe");
+
+        // When
+        given().
+                multiPart(new MultiPartSpecBuilder(greeting, new Jackson3Mapper(new DefaultJackson3ObjectMapperFactory()))
                         .fileName("RoleBasedAccessFeaturePlan.csv")
                         .controlName("text")
                         .mimeType("application/vnd.ms-excel").build()).

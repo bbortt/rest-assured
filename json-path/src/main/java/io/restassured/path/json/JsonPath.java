@@ -31,11 +31,23 @@ import io.restassured.path.json.exception.JsonPathException;
 import io.restassured.path.json.mapper.factory.GsonObjectMapperFactory;
 import io.restassured.path.json.mapper.factory.Jackson1ObjectMapperFactory;
 import io.restassured.path.json.mapper.factory.Jackson2ObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.Jackson3ObjectMapperFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 /**
  * JsonPath is an alternative to using XPath for easily getting values from a Object document. It follows the
@@ -605,9 +617,9 @@ public class JsonPath {
      * <p/>
      * maps the second book to a Book instance.
      *
-     * @param path       The path to the object to map
-     * @param typeRef    The class type of the expected object
-     * @param <T>        The type of the expected object
+     * @param path    The path to the object to map
+     * @param typeRef The class type of the expected object
+     * @param <T>     The type of the expected object
      * @return The object
      */
     public <T> T getObject(String path, TypeRef<T> typeRef) {
@@ -730,6 +742,16 @@ public class JsonPath {
      */
     public JsonPath using(Jackson2ObjectMapperFactory factory) {
         return new JsonPath(this, getJsonPathConfig().jackson2ObjectMapperFactory(factory));
+    }
+
+    /**
+     * Configure JsonPath to use a specific Jackson 3 object mapper factory
+     *
+     * @param factory The Jackson 3 object mapper factory instance
+     * @return a new JsonPath instance
+     */
+    public JsonPath using(Jackson3ObjectMapperFactory factory) {
+        return new JsonPath(this, getJsonPathConfig().jackson3ObjectMapperFactory(factory));
     }
 
     /**
@@ -901,6 +923,7 @@ public class JsonPath {
     public JsonPath setRoot(String rootPath) {
         return setRootPath(rootPath);
     }
+
     /**
      * Set the root path of the document so that you don't need to write the entire path. E.g.
      * <pre>
@@ -1081,6 +1104,8 @@ public class JsonPath {
             cfg = cfg.defaultParserType(JsonParserType.JACKSON_1);
         } else if (cfg.hasCustomGsonObjectMapperFactory()) {
             cfg = cfg.defaultParserType(JsonParserType.GSON);
+        } else if (cfg.hasCustomJackson3ObjectMapperFactory()) {
+            cfg = cfg.defaultParserType(JsonParserType.JACKSON_3);
         } else if (cfg.hasCustomJackson20ObjectMapperFactory()) {
             cfg = cfg.defaultParserType(JsonParserType.JACKSON_2);
         } else if (cfg.hasCustomJohnzonObjectMapperFactory()) {

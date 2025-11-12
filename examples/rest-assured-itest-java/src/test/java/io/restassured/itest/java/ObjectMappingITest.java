@@ -26,7 +26,9 @@ import io.restassured.itest.java.support.WithJetty;
 import io.restassured.mapper.ObjectMapperType;
 import org.junit.Test;
 
-import static io.restassured.RestAssured.*;
+import static io.restassured.RestAssured.expect;
+import static io.restassured.RestAssured.get;
+import static io.restassured.RestAssured.given;
 import static io.restassured.config.EncoderConfig.encoderConfig;
 import static io.restassured.parsing.Parser.JSON;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -178,6 +180,13 @@ public class ObjectMappingITest extends WithJetty {
     @Test
     public void mapResponseToObjectUsingJackson2WithJacksonObjectMapperDefined() {
         final ScalatraObject object = get("/hello").as(ScalatraObject.class, ObjectMapperType.JACKSON_2);
+
+        assertThat(object.getHello(), equalTo("Hello Scalatra"));
+    }
+
+    @Test
+    public void mapResponseToObjectUsingJackson3WithJacksonObjectMapperDefined() {
+        final ScalatraObject object = get("/hello").as(ScalatraObject.class, ObjectMapperType.JACKSON_3);
 
         assertThat(object.getHello(), equalTo("Hello Scalatra"));
     }
